@@ -48,6 +48,8 @@ const AdventureMode = ({ playerName, onBack, onBossFight, isMultiplayer }: Adven
   const [score, setScore] = useState(0);
   const [keys, setKeys] = useState<Set<string>>(new Set());
   const [otherPlayers, setOtherPlayers] = useState<Player[]>([]);
+  const [touchMoving, setTouchMoving] = useState(false);
+  const [touchDirection, setTouchDirection] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -102,6 +104,11 @@ const AdventureMode = ({ playerName, onBack, onBossFight, isMultiplayer }: Adven
         if (keys.has('s') || keys.has('ы')) newY = Math.min(550, prev.y + 5);
         if (keys.has('a') || keys.has('ф')) newX = Math.max(0, prev.x - 5);
         if (keys.has('d') || keys.has('в')) newX = Math.min(750, prev.x + 5);
+
+        if (touchMoving) {
+          newX = Math.max(0, Math.min(750, prev.x + touchDirection.x * 5));
+          newY = Math.max(0, Math.min(550, prev.y + touchDirection.y * 5));
+        }
 
         return { x: newX, y: newY };
       });
@@ -187,7 +194,7 @@ const AdventureMode = ({ playerName, onBack, onBossFight, isMultiplayer }: Adven
     }, 1000 / 60);
 
     return () => clearInterval(gameLoop);
-  }, [keys, playerPos, enemies]);
+  }, [keys, playerPos, enemies, touchMoving, touchDirection]);
 
   useEffect(() => {
     if (playerHealth <= 0) {
@@ -222,6 +229,34 @@ const AdventureMode = ({ playerName, onBack, onBossFight, isMultiplayer }: Adven
     setBullets(prev => [...prev, newBullet]);
   };
 
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!touchMoving) return;
+    
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    
+    const centerX = playerPos.x;
+    const centerY = playerPos.y;
+    
+    const dirX = touchX - centerX;
+    const dirY = touchY - centerY;
+    const length = Math.sqrt(dirX * dirX + dirY * dirY);
+    
+    if (length > 10) {
+      setTouchDirection({
+        x: dirX / length,
+        y: dirY / length,
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchMoving(false);
+    setTouchDirection({ x: 0, y: 0 });
+  };
+
   useEffect(() => {
     if (isMultiplayer) {
       const mockPlayers: Player[] = [
@@ -254,7 +289,12 @@ const AdventureMode = ({ playerName, onBack, onBossFight, isMultiplayer }: Adven
         </div>
       </div>
 
-      <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-slate-800 to-slate-900">
+      <div 
+        className="flex-1 relative overflow-hidden bg-gradient-to-b from-slate-800 to-slate-900"
+        onTouchStart={() => setTouchMoving(true)}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-10 left-10 w-32 h-48 bg-slate-700 rounded"></div>
           <div className="absolute top-40 right-20 w-40 h-40 bg-slate-700 rounded"></div>
@@ -330,34 +370,38 @@ const AdventureMode = ({ playerName, onBack, onBossFight, isMultiplayer }: Adven
           <div className="flex flex-col gap-2">
             <Button
               onClick={() => handleShoot('up')}
-              className="w-16 h-16 bg-gradient-to-b from-cyan-500 to-blue-600"
+              onTouchStart={(e) => { e.preventDefault(); handleShoot('up'); }}
+              className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-b from-cyan-500 to-blue-600 active:scale-95 transition-transform"
             >
-              <Icon name="ArrowUp" size={32} />
+              <Icon name="ArrowUp" size={28} />
             </Button>
             <div className="flex gap-2">
               <Button
                 onClick={() => handleShoot('left')}
-                className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-600"
+                onTouchStart={(e) => { e.preventDefault(); handleShoot('left'); }}
+                className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-cyan-500 to-blue-600 active:scale-95 transition-transform"
               >
-                <Icon name="ArrowLeft" size={32} />
+                <Icon name="ArrowLeft" size={28} />
               </Button>
               <Button
                 onClick={() => handleShoot('down')}
-                className="w-16 h-16 bg-gradient-to-t from-cyan-500 to-blue-600"
+                onTouchStart={(e) => { e.preventDefault(); handleShoot('down'); }}
+                className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-t from-cyan-500 to-blue-600 active:scale-95 transition-transform"
               >
-                <Icon name="ArrowDown" size={32} />
+                <Icon name="ArrowDown" size={28} />
               </Button>
               <Button
                 onClick={() => handleShoot('right')}
-                className="w-16 h-16 bg-gradient-to-l from-cyan-500 to-blue-600"
+                onTouchStart={(e) => { e.preventDefault(); handleShoot('right'); }}
+                className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-l from-cyan-500 to-blue-600 active:scale-95 transition-transform"
               >
-                <Icon name="ArrowRight" size={32} />
+                <Icon name="ArrowRight" size={28} />
               </Button>
             </div>
           </div>
         </div>
-        <p className="text-center text-cyan-400 mt-2">
-          Управление: WASD / ↑←↓→ | Стрельба: кнопки
+        <p className="text-center text-cyan-400 mt-2 text-xs sm:text-sm">
+          📱 Касайтесь экрана для движения | 🎯 Кнопки для стрельбы
         </p>
       </div>
     </div>

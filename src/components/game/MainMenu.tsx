@@ -32,17 +32,18 @@ const MainMenu = ({ onModeSelect, onPlayerNameSet }: MainMenuProps) => {
       
       <div className="relative z-10 flex flex-col items-center gap-8 max-w-md w-full">
         <div className="text-center space-y-4">
-          <h1 className="text-6xl font-bold text-cyan-400 drop-shadow-[0_0_25px_rgba(34,211,238,0.5)] animate-pulse">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-cyan-400 drop-shadow-[0_0_25px_rgba(34,211,238,0.5)] animate-pulse">
             ПРИКЛЮЧЕНИЯ БУБЫ
           </h1>
-          <p className="text-xl text-orange-300">Спаси город от роботов!</p>
+          <p className="text-lg sm:text-xl text-orange-300">Спаси город от роботов!</p>
         </div>
 
         {!showNameInput ? (
           <div className="flex flex-col gap-4 w-full">
             <Button
               onClick={() => handleModeClick('adventure')}
-              className="h-16 text-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-bold shadow-lg shadow-cyan-500/50"
+              onTouchStart={(e) => { e.preventDefault(); handleModeClick('adventure'); }}
+              className="h-14 sm:h-16 text-lg sm:text-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 active:scale-95 transition-transform text-white font-bold shadow-lg shadow-cyan-500/50"
             >
               <Icon name="Sword" className="mr-2" size={24} />
               Режим приключений
@@ -50,7 +51,8 @@ const MainMenu = ({ onModeSelect, onPlayerNameSet }: MainMenuProps) => {
             
             <Button
               onClick={() => handleModeClick('boss')}
-              className="h-16 text-xl bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold shadow-lg shadow-red-500/50"
+              onTouchStart={(e) => { e.preventDefault(); handleModeClick('boss'); }}
+              className="h-14 sm:h-16 text-lg sm:text-xl bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 active:scale-95 transition-transform text-white font-bold shadow-lg shadow-red-500/50"
             >
               <Icon name="Skull" className="mr-2" size={24} />
               Битва с боссом
@@ -58,7 +60,8 @@ const MainMenu = ({ onModeSelect, onPlayerNameSet }: MainMenuProps) => {
 
             <Button
               onClick={() => handleModeClick('multiplayer')}
-              className="h-16 text-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold shadow-lg shadow-purple-500/50"
+              onTouchStart={(e) => { e.preventDefault(); handleModeClick('multiplayer'); }}
+              className="h-14 sm:h-16 text-lg sm:text-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 active:scale-95 transition-transform text-white font-bold shadow-lg shadow-purple-500/50"
             >
               <Icon name="Users" className="mr-2" size={24} />
               Мультиплеер
@@ -78,16 +81,18 @@ const MainMenu = ({ onModeSelect, onPlayerNameSet }: MainMenuProps) => {
             <div className="flex gap-2">
               <Button
                 onClick={handleStart}
+                onTouchStart={(e) => { e.preventDefault(); if (playerName.trim()) handleStart(); }}
                 disabled={!playerName.trim()}
-                className="flex-1 h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold"
+                className="flex-1 h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 active:scale-95 transition-transform text-white font-bold"
               >
                 <Icon name="Play" className="mr-2" size={20} />
                 Начать игру
               </Button>
               <Button
                 onClick={() => setShowNameInput(false)}
+                onTouchStart={(e) => { e.preventDefault(); setShowNameInput(false); }}
                 variant="outline"
-                className="h-12 border-orange-500 text-orange-400 hover:bg-orange-500/20"
+                className="h-12 border-orange-500 text-orange-400 hover:bg-orange-500/20 active:scale-95 transition-transform"
               >
                 <Icon name="ArrowLeft" size={20} />
               </Button>

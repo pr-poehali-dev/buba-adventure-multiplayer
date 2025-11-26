@@ -35,6 +35,7 @@ const BossMode = ({ playerName, onBack, onWin }: BossModeProps) => {
   const [attackPhase, setAttackPhase] = useState(0);
   const [canDodge, setCanDodge] = useState(true);
   const [isAttacking, setIsAttacking] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const spawnProjectile = useCallback(() => {
     const angle = Math.random() * Math.PI * 2;
@@ -222,6 +223,30 @@ const BossMode = ({ playerName, onBack, onWin }: BossModeProps) => {
     setTimeout(() => setIsAttacking(false), 300);
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX === null || !canDodge) return;
+    
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - touchStartX;
+    
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        handleDodge('right');
+      } else {
+        handleDodge('left');
+      }
+      setTouchStartX(null);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStartX(null);
+  };
+
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex justify-between items-center p-4 bg-slate-900/90 backdrop-blur-sm">
@@ -240,7 +265,12 @@ const BossMode = ({ playerName, onBack, onWin }: BossModeProps) => {
         </div>
       </div>
 
-      <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-red-900 via-slate-900 to-slate-800">
+      <div 
+        className="flex-1 relative overflow-hidden bg-gradient-to-b from-red-900 via-slate-900 to-slate-800"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="absolute top-8 left-1/2 -translate-x-1/2 w-64">
           <div className="flex items-center gap-2 mb-2">
             <Icon name="Skull" className="text-red-500" size={32} />
@@ -324,56 +354,61 @@ const BossMode = ({ playerName, onBack, onWin }: BossModeProps) => {
       </div>
 
       <div className="p-4 bg-slate-900/90 backdrop-blur-sm">
-        <div className="flex justify-center gap-8">
+        <div className="flex justify-center gap-4 sm:gap-8">
           <div className="flex flex-col gap-2">
-            <span className="text-cyan-400 text-sm text-center">Уворот</span>
+            <span className="text-cyan-400 text-xs sm:text-sm text-center">Уворот</span>
             <div className="flex gap-2">
               <Button
                 onClick={() => handleDodge('left')}
+                onTouchStart={(e) => { e.preventDefault(); handleDodge('left'); }}
                 disabled={!canDodge}
-                className="w-20 h-16 bg-gradient-to-r from-purple-500 to-purple-700 disabled:opacity-50"
+                className="w-16 h-14 sm:w-20 sm:h-16 bg-gradient-to-r from-purple-500 to-purple-700 disabled:opacity-50 active:scale-95 transition-transform"
               >
-                <Icon name="ChevronsLeft" size={32} />
+                <Icon name="ChevronsLeft" size={28} />
               </Button>
               <Button
                 onClick={() => handleDodge('right')}
+                onTouchStart={(e) => { e.preventDefault(); handleDodge('right'); }}
                 disabled={!canDodge}
-                className="w-20 h-16 bg-gradient-to-r from-purple-500 to-purple-700 disabled:opacity-50"
+                className="w-16 h-14 sm:w-20 sm:h-16 bg-gradient-to-r from-purple-500 to-purple-700 disabled:opacity-50 active:scale-95 transition-transform"
               >
-                <Icon name="ChevronsRight" size={32} />
+                <Icon name="ChevronsRight" size={28} />
               </Button>
             </div>
           </div>
           
           <div className="flex flex-col gap-2">
-            <span className="text-cyan-400 text-sm text-center">Атаки</span>
+            <span className="text-cyan-400 text-xs sm:text-sm text-center">Атаки</span>
             <div className="flex gap-2">
               <Button
                 onClick={() => handleAttack('punch')}
+                onTouchStart={(e) => { e.preventDefault(); handleAttack('punch'); }}
                 disabled={isAttacking}
-                className="w-20 h-16 bg-gradient-to-r from-cyan-500 to-blue-600"
+                className="w-16 h-14 sm:w-20 sm:h-16 bg-gradient-to-r from-cyan-500 to-blue-600 active:scale-95 transition-transform"
               >
-                <Icon name="Zap" size={28} />
+                <Icon name="Zap" size={24} />
               </Button>
               <Button
                 onClick={() => handleAttack('heavy')}
+                onTouchStart={(e) => { e.preventDefault(); handleAttack('heavy'); }}
                 disabled={isAttacking}
-                className="w-20 h-16 bg-gradient-to-r from-orange-500 to-red-600"
+                className="w-16 h-14 sm:w-20 sm:h-16 bg-gradient-to-r from-orange-500 to-red-600 active:scale-95 transition-transform"
               >
-                <Icon name="Flame" size={28} />
+                <Icon name="Flame" size={24} />
               </Button>
               <Button
                 onClick={() => handleAttack('special')}
+                onTouchStart={(e) => { e.preventDefault(); handleAttack('special'); }}
                 disabled={isAttacking}
-                className="w-20 h-16 bg-gradient-to-r from-yellow-500 to-orange-600"
+                className="w-16 h-14 sm:w-20 sm:h-16 bg-gradient-to-r from-yellow-500 to-orange-600 active:scale-95 transition-transform"
               >
-                <Icon name="Sparkles" size={28} />
+                <Icon name="Sparkles" size={24} />
               </Button>
             </div>
           </div>
         </div>
-        <p className="text-center text-cyan-400 mt-2 text-sm">
-          Уворачивайся и атакуй босса! Специальная атака убирает мелких роботов
+        <p className="text-center text-cyan-400 mt-2 text-xs sm:text-sm">
+          📱 Проведи пальцем для уворота | 👊 Нажми для атаки
         </p>
       </div>
     </div>
